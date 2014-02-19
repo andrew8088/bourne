@@ -74,5 +74,76 @@ this.bourne_test = {
                 test.done();
             });
         });
+    },
+    'can use query operators': function (test) {
+        var r = { firstname: c.first(), age: 10 };
+
+        var db = this.db;
+
+        db.insert(r, function () {
+            db.find({ age: { $lt: 11 } }, function (err, records) {
+                test.notEqual(records.length, 0, 'should have at least 1 record');
+                test.done();
+            }); 
+        });
+    },
+    'query operators': {
+        '$lt': function (test) {
+            operatorTest({ age: 10 }, { age: { $lt: 11 } }, function (err, records) {
+                test.notEqual(records.length, 0, 'should have at least 1 record');
+                test.done();
+            });
+        },
+        '$gt': function (test) {
+            operatorTest({ age: 10 }, { age: { $gt: 9 } }, function (err, records) {
+                test.notEqual(records.length, 0, 'should have at least 1 record');
+                test.done();
+            });
+        },
+        '$lte': function (test) {
+            operatorTest({ age: 10 }, { age: { $lte: 10 } }, function (err, records) {
+                test.notEqual(records.length, 0, 'should have at least 1 record');
+                test.done();
+            });
+        },
+        'multiple operators': function (test) {
+            operatorTest({ age: 10 }, { age: { $lt: 11, $gt: 9 } }, function (err, records) {
+                test.notEqual(records.length, 0, 'should have at least 1 record');
+                test.done();
+            });
+        }
+    },
+    'can register custom query operator': function (test) {
+        Bourne.operator('$in', function (key, values, record) {
+            for (var i = 0; i < values.length; i++) {
+                if (record[key] === values[i]) {
+                    return true;
+                }
+            }
+        });
+
+        this.db.find({ firstname: { $in: [testRecord1.firstname, testRecord2.firstname] } }, function (err, records) {
+            test.equal(records.length, 2, 'should receive two records');
+            test.done();
+        });
+    },
+    'can find a single record': function (test) {
+        this.db.findOne({ firstname: testRecord1.firstname }, function (err, record) {
+            test.equal(record.firstname, testRecord1.firstname, 'names should be equal');
+            test.done();
+        });
+    },
+    'can find all records': function (test) {
+        this.db.find(function (err, records) {
+            test.equal(records.length, 3, 'should find 3 records');
+            test.done();
+        });
     }
 };
+
+function operatorTest(record, query, cb) {
+    var db = new Bourne(testName, { reset: true });
+    db.insert(record, function () {
+        db.find(query, cb);
+    });
+}
