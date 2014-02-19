@@ -23,6 +23,10 @@ this.bourne_test = {
             });
         });
     },
+    tearDown: function (done) {
+        this.db.destroy();
+        done();
+    },
     'can create Bourne instance': function(test) {
         test.expect(1);
 
@@ -143,6 +147,15 @@ this.bourne_test = {
         this.db.update({ firstname: testRecord1.firstname }, { age: 200 }, function (err, records) {
             test.equal(records[0].age, 200, 'age should be updated');
             test.done();
+        });
+    },
+    'can delete records': function (test) {
+        var db = this.db;
+        db.delete({ firstname: testRecord1.firstname }, function () {
+            db.find({ firstname: testRecord1.firstname }, function (err, records) {
+                test.equal(records.length, 0, 'no records should be found');
+                test.done();
+            });
         });
     }
 };
