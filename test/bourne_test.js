@@ -138,6 +138,12 @@ this.bourne_test = {
             test.equal(records.length, 3, 'should find 3 records');
             test.done();
         });
+    },
+    'can updated records': function (test) {
+        this.db.update({ firstname: testRecord1.firstname }, { age: 200 }, function (err, records) {
+            test.equal(records[0].age, 200, 'age should be updated');
+            test.done();
+        });
     }
 };
 
