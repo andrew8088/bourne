@@ -157,6 +157,14 @@ this.bourne_test = {
                 test.done();
             });
         });
+    },
+    'can work with no persistence': function (test) {
+        var db = new Bourne(testName, { temp: true });
+        db.insert(testRecord1, function (err, records) {
+            var db2 = new Bourne(testName, { temp: true });
+            test.equal(db2.data.length, 0, 'db2 should have no records');
+            test.done();
+        });
     }
 };
 
