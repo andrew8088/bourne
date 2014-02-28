@@ -117,20 +117,6 @@ this.bourne_test = {
             });
         }
     },
-    'can register custom query operator': function (test) {
-        Bourne.operator('$in', function (key, values, record) {
-            for (var i = 0; i < values.length; i++) {
-                if (record[key] === values[i]) {
-                    return true;
-                }
-            }
-        });
-
-        this.db.find({ firstname: { $in: [testRecord1.firstname, testRecord2.firstname] } }, function (err, records) {
-            test.equal(records.length, 2, 'should receive two records');
-            test.done();
-        });
-    },
     'can find a single record': function (test) {
         this.db.findOne({ firstname: testRecord1.firstname }, function (err, record) {
             test.equal(record.firstname, testRecord1.firstname, 'names should be equal');
@@ -140,6 +126,13 @@ this.bourne_test = {
     'can find all records': function (test) {
         this.db.find(function (err, records) {
             test.equal(records.length, 3, 'should find 3 records');
+            test.done();
+        });
+    },
+    'can insert multiple records': function (test) {
+        var db = new Bourne(testName, { reset: true });
+        db.insertAll([testRecord1, testRecord2], function (err, records) {
+            test.equal(records.length, 2);
             test.done();
         });
     },
